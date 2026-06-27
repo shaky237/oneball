@@ -1,65 +1,150 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getFixtures } from "../lib/football";
+import { getAllPredictions } from "../lib/firestoreFixtures";
+import PredictionCard from "../components/PredictionCard";
 
-export default function Home() {
+export default async function Home() {
+  const [allMatches, storedPredictions] = await Promise.all([
+    getFixtures(),
+    getAllPredictions(),
+  ]);
+
+  const now = new Date();
+  const matches = allMatches.filter(
+    (m: any) =>
+      new Date(m.fixture.date) > now &&
+      storedPredictions.has(String(m.fixture.id))
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="main">
+      <div className="hero-backgroung"></div>
+
+      <section className="hero">
+        <h1 className="logo">ONEBALL</h1>
+
+        <p className="subtitle">
+          Daily Football Predictions & Winning Probabilities
+        </p>
+
+        <div className="hero-buttons">
+          <a href="#predictions" className="primary-btn">
+            Today's Predictions
+          </a>
+
+          <Link href="/vip" className="secondary-btn">
+            Unlock VIP
+          </Link>
+
+          <Link href="/vip/access" className="secondary-btn">
+            VIP Premium Access
+          </Link>
+
+          <Link href="/vip/correct-score-access" className="secondary-btn">
+            VIP Correct Score Access
+          </Link>
+
+          <Link href="/about" className="secondary-btn">
+            ℹ️ About ONEBALL
+          </Link>
+        </div>
+      </section>
+
+      <section id="predictions" className="section">
+        <div className="section-header">
+          <h2>Top Predictions</h2>
+        </div>
+
+        {matches.map((match: any) => {
+          const prediction = storedPredictions.get(
+            String(match.fixture.id)
+          );
+
+          return (
+            <PredictionCard
+              key={match.fixture.id}
+              homeTeam={match.teams.home.name}
+              awayTeam={match.teams.away.name}
+              homeLogo={match.teams.home.logo}
+              awayLogo={match.teams.away.logo}
+              homePercent={prediction?.homePercent || null}
+              drawPercent={prediction?.drawPercent || null}
+              awayPercent={prediction?.awayPercent || null}
+              advice={
+                prediction?.advice || "No prediction yet — check back soon"
+              }
+            />
+          );
+        })}
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>Weekend VIP Games</h2>
+        </div>
+
+        <div className="vip-card">
+          <h3>Premium Predictions</h3>
+
+          <ul>
+            <li>Correct Score Predictions</li>
+            <li>HT/FT Predictions</li>
+            <li>Weekend Jackpot Tips</li>
+          </ul>
+
+          <Link href="/vip" className="primary-btn">
+            Join ONEBALL VIP
+          </Link>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>🏆 Browse by League</h2>
+
+          <p>
+            Select a competition to view fixtures,
+            predictions and league table.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="league-grid">
+
+          <div className="league-card">
+            🇬🇧 Premier League
+          </div>
+
+          <div className="league-card">
+            🇪🇸 La Liga
+          </div>
+
+          <div className="league-card">
+            🇮🇹 Serie A
+          </div>
+
+         <div className="league-card">
+            🇩🇪 Bundesliga
+          </div>
+
+          <div className="league-card">
+            🇫🇷 Ligue 1
+          </div>
+
+         <div className="league-card">
+            🇸🇦 Saudi Pro League
+          </div>
+
+          <div className="league-card">
+            🏆 UEFA Champions League
+          </div>
+
+          <div className="league-card">
+            🌍 FIFA World Cup
+          </div>
+
         </div>
-      </main>
-    </div>
+      </section>
+
+    </main>
   );
 }
