@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/\" 2>&1 | head -5 *)",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application//**)",
+      "Read(//c/Program Files/Google/Chrome/**)",
+      "Bash(find \"$HOME/AppData/Local/npm-cache/_npx\" -maxdepth 3 -iname \"playwright-core\" 2>/dev/null)",
+      "Read(//c/Users/Afro TechNology/AppData/Local/npm-cache/_npx/**)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /tmp/home.html -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /tmp/home_fail.html -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"/admin/approval -> %{http_code}\\\\n\" http://localhost:3000/admin/approval)",
+      "Bash(curl -s -o /dev/null -w \"/vip/games -> %{http_code}\\\\n\" http://localhost:3000/vip/games)",
+      "Bash(curl -s -o /dev/null -w \"/vip/access -> %{http_code}\\\\n\" http://localhost:3000/vip/access)",
+      "Bash(MSYS_NO_PATHCONV=1 curl -s -o /dev/null -w \"approval -> %{http_code}\\\\n\" \"http://localhost:3000/admin/approval\")",
+      "Bash(MSYS_NO_PATHCONV=1 curl -s -o /dev/null -w \"vipgames -> %{http_code}\\\\n\" \"http://localhost:3000/vip/games\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

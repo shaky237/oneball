@@ -10,29 +10,34 @@ export default function VipAccess() {
   const router = useRouter();
 
   async function checkAccess() {
-    const querySnapshot = await getDocs(
-      collection(db, "payments")
-    );
-
-    const payment = querySnapshot.docs.find((doc) => {
-      const data = doc.data();
-
-      return (
-        String(data.paymentInfo ?? "").trim() ===
-        paymentId.trim()
+    try {
+      const querySnapshot = await getDocs(
+        collection(db, "payments")
       );
-    });
 
-    if (!payment) {
-      alert("Payment information not found.");
-      return;
-    }
+      const payment = querySnapshot.docs.find((doc) => {
+        const data = doc.data();
 
-    if (payment.data().status === "approved") {
-      localStorage.setItem("vipAccess", "true");
-      router.push("/vip/games");
-    } else {
-      alert("Your payment is still pending approval.");
+        return (
+          String(data.paymentInfo ?? "").trim() ===
+          paymentId.trim()
+        );
+      });
+
+      if (!payment) {
+        alert("Payment information not found.");
+        return;
+      }
+
+      if (payment.data().status === "approved") {
+        localStorage.setItem("vipAccess", "true");
+        router.push("/vip/games");
+      } else {
+        alert("Your payment is still pending approval.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Could not verify access right now. Please try again shortly.");
     }
   }
 

@@ -4,17 +4,22 @@ import { getAllPredictions } from "../lib/firestoreFixtures";
 import PredictionCard from "../components/PredictionCard";
 
 export default async function Home() {
-  const [allMatches, storedPredictions] = await Promise.all([
-    getFixtures(),
-    getAllPredictions(),
-  ]);
+  const [allMatches, { predictions: storedPredictions, firestoreAvailable }] =
+    await Promise.all([getFixtures(), getAllPredictions()]);
 
   const now = new Date();
-  const matches = allMatches.filter(
-    (m: any) =>
-      new Date(m.fixture.date) > now &&
-      storedPredictions.has(String(m.fixture.id))
+  const upcomingMatches = allMatches.filter(
+    (m: any) => new Date(m.fixture.date) > now
   );
+
+  // When Firestore is reachable, only show fixtures that have a curated prediction.
+  // When it's unavailable/slow, fall back to showing all upcoming fixtures with
+  // default placeholder text so the homepage never goes blank or crashes.
+  const matches = firestoreAvailable
+    ? upcomingMatches.filter((m: any) =>
+        storedPredictions.has(String(m.fixture.id))
+      )
+    : upcomingMatches;
 
   return (
     <main className="main">

@@ -125,6 +125,7 @@ url("/hero.jpeg");
 
 .prediction-card {
   margin-bottom: 20px;
+  padding: 20px;
 }
 
 .teams {
@@ -132,7 +133,7 @@ url("/hero.jpeg");
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .team {
@@ -163,8 +164,8 @@ url("/hero.jpeg");
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #1d2b4d;
 }
 
@@ -183,32 +184,40 @@ url("/hero.jpeg");
   margin: 0;
 }
 
-.prediction-probabilities {
+.prediction-row {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 16px;
 }
 
-.probability {
+.prediction-col {
   flex: 1;
-  min-width: 100px;
-  background: #18233f;
-  padding: 14px 12px;
-  border-radius: 12px;
+  min-width: 0;
   text-align: center;
+  padding: 8px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.probability p {
+.prediction-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   color: #c2c2c2;
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.probability h4 {
-  font-size: 24px;
+.prediction-value {
+  font-size: 18px;
+  font-weight: bold;
   color: #00ff88;
+  line-height: 1.2;
 }
 
 .extra-predictions {
@@ -221,7 +230,8 @@ url("/hero.jpeg");
 }
 
 .advice {
-  margin-bottom: 20px;
+  margin-top: 6px;
+  margin-bottom: 16px;
   color: #e6e6e6;
 }
 
@@ -230,9 +240,17 @@ url("/hero.jpeg");
 }
 
 .vip-btn {
-  width: 100%;
+  display: block;
+  width: 70%;
+  max-width: 220px;
+  min-width: 160px;
+  margin: 4px auto 0;
+  padding: 10px 14px;
   background: #00ff88;
   color: black;
+  font-size: 13px;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .vip-card h3 {
@@ -273,8 +291,21 @@ url("/hero.jpeg");
     font-size: 18px;
   }
 
-  .prediction-probabilities {
-    flex-direction: column;
+  .prediction-row {
+    gap: 6px;
+  }
+
+  .prediction-col {
+    padding: 6px 4px;
+  }
+
+  .prediction-label {
+    font-size: 10px;
+    gap: 2px;
+  }
+
+  .prediction-value {
+    font-size: 15px;
   }
 
   .match-league {
@@ -282,6 +313,13 @@ url("/hero.jpeg");
   }
 
   .match-datetime {
+    font-size: 12px;
+  }
+
+  .vip-btn {
+    width: 78%;
+    max-width: 190px;
+    padding: 9px 12px;
     font-size: 12px;
   }
 }

@@ -21,17 +21,20 @@ useEffect(() => {
   }
 
   const fetchGames = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "vipGames"));
 
-const querySnapshot = await getDocs(collection(db, "vipGames"));
+      let allGames = "";
 
-let allGames = "";
+      querySnapshot.forEach((doc) => {
+        allGames += doc.data().games + "\n\n";
+      });
 
-querySnapshot.forEach((doc) => {
-  allGames += doc.data().games + "\n\n";
-});
-
-setGames(allGames);
-
+      setGames(allGames || "No prediction available yet — check back soon.");
+    } catch (error) {
+      console.error(error);
+      setGames("No prediction available right now. Please try again shortly.");
+    }
   };
   fetchGames();
 }, [router]);

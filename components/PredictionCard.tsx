@@ -1,23 +1,5 @@
 import Link from "next/link";
-
-function formatMatchDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function formatMatchTime(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-}
+import { formatMatchDate, formatMatchTime } from "../lib/matchTime";
 
 export default function PredictionCard({
   homeTeam,
@@ -80,31 +62,31 @@ export default function PredictionCard({
       )}
 
       {homePercent != null && (
-        <div className="prediction-probabilities">
-          <div className="probability">
-            <p>🏠 Home Win</p>
-            <h4>{homePercent}</h4>
+        <div className="prediction-row">
+          <div className="prediction-col">
+            <p className="prediction-label">🏠 Home</p>
+            <h4 className="prediction-value">{homePercent}</h4>
           </div>
-          <div className="probability">
-            <p>🤝 Draw</p>
-            <h4>{drawPercent}</h4>
+          <div className="prediction-col">
+            <p className="prediction-label">🤝 Draw</p>
+            <h4 className="prediction-value">{drawPercent}</h4>
           </div>
-          <div className="probability">
-            <p>✈️ Away Win</p>
-            <h4>{awayPercent}</h4>
+          <div className="prediction-col">
+            <p className="prediction-label">✈️ Away</p>
+            <h4 className="prediction-value">{awayPercent}</h4>
           </div>
-        </div>
-      )}
-
-      {predictedWinner != null && (
-        <div className="extra-predictions">
-          <strong>🏆 Predicted Winner:</strong> {predictedWinner}
         </div>
       )}
 
       <div className="advice">
         <strong>💡 Advice:</strong> {advice}
       </div>
+
+      {predictedWinner != null && (
+        <div className="extra-predictions">
+          <strong>🏆 Predicted Winner:</strong> {predictedWinner}
+        </div>
+      )}
 
       <Link href="/vip" className="vip-btn">
         🔒 Unlock VIP Correct Score

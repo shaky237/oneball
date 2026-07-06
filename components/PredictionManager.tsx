@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { formatMatchDate, formatMatchTime } from "../lib/matchTime";
 
 type Fixture = {
   fixture: {
@@ -247,14 +248,8 @@ export default function PredictionManager() {
               }}
             >
               {fixture.league.name}&nbsp;·&nbsp;
-              {new Date(fixture.fixture.date).toLocaleString("en-GB", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {formatMatchDate(fixture.fixture.date)}&nbsp;
+              {formatMatchTime(fixture.fixture.date)}
             </p>
 
             {/* Percentage inputs */}
