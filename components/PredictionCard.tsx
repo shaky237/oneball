@@ -1,10 +1,31 @@
 import Link from "next/link";
 
+function formatMatchDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatMatchTime(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function PredictionCard({
   homeTeam,
   awayTeam,
   homeLogo,
   awayLogo,
+  league,
+  matchDate,
   homePercent,
   drawPercent,
   awayPercent,
@@ -16,6 +37,8 @@ export default function PredictionCard({
   awayTeam: string;
   homeLogo: string;
   awayLogo: string;
+  league?: string | null;
+  matchDate?: string | null;
   homePercent?: string | null;
   drawPercent?: string | null;
   awayPercent?: string | null;
@@ -39,32 +62,53 @@ export default function PredictionCard({
         </div>
       </div>
 
-      <div className="probabilities">
-        {predictedScore != null && (
-          <div>
-            <strong>⚽ Predicted Score:</strong> {predictedScore}
-          </div>
-        )}
-
-        {homePercent != null && (
-          <>
-            <div>🏠 Home Win: {homePercent}</div>
-            <div>🤝 Draw: {drawPercent}</div>
-            <div>✈️ Away Win: {awayPercent}</div>
-          </>
-        )}
-
-        <hr style={{ margin: "15px 0" }} />
-
-        {predictedWinner != null && (
-          <div>
-            <strong>🏆 Predicted Winner:</strong> {predictedWinner}
-          </div>
-        )}
-
-        <div style={{ marginTop: "10px" }}>
-          <strong>💡 Advice:</strong> {advice}
+      {(league || matchDate) && (
+        <div className="match-meta">
+          {league && <span className="match-meta-item">🏆 {league}</span>}
+          {matchDate && (
+            <span className="match-meta-item">
+              📅 {formatMatchDate(matchDate)}
+            </span>
+          )}
+          {matchDate && (
+            <span className="match-meta-item">
+              🕒 {formatMatchTime(matchDate)}
+            </span>
+          )}
         </div>
+      )}
+
+      {predictedScore != null && (
+        <div className="extra-predictions">
+          <strong>⚽ Predicted Score:</strong> {predictedScore}
+        </div>
+      )}
+
+      {homePercent != null && (
+        <div className="prediction-probabilities">
+          <div className="probability">
+            <p>🏠 Home Win</p>
+            <h4>{homePercent}</h4>
+          </div>
+          <div className="probability">
+            <p>🤝 Draw</p>
+            <h4>{drawPercent}</h4>
+          </div>
+          <div className="probability">
+            <p>✈️ Away Win</p>
+            <h4>{awayPercent}</h4>
+          </div>
+        </div>
+      )}
+
+      {predictedWinner != null && (
+        <div className="extra-predictions">
+          <strong>🏆 Predicted Winner:</strong> {predictedWinner}
+        </div>
+      )}
+
+      <div className="advice">
+        <strong>💡 Advice:</strong> {advice}
       </div>
 
       <Link href="/vip" className="vip-btn">

@@ -67,6 +67,8 @@ export default async function Home() {
               awayTeam={match.teams.away.name}
               homeLogo={match.teams.home.logo}
               awayLogo={match.teams.away.logo}
+              league={match.league?.name || null}
+              matchDate={match.fixture?.date || null}
               homePercent={prediction?.homePercent || null}
               drawPercent={prediction?.drawPercent || null}
               awayPercent={prediction?.awayPercent || null}

@@ -123,11 +123,15 @@ url("/hero.jpeg");
   border: 1px solid #1d2b4d;
 }
 
+.prediction-card {
+  margin-bottom: 20px;
+}
+
 .teams {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 18px;
 }
 
 .team {
@@ -135,23 +139,43 @@ url("/hero.jpeg");
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  flex: 1;
 }
 
 .team img {
   width: 70px;
   height: 70px;
+  object-fit: contain;
 }
 
 .team span {
   font-size: 16px;
   font-weight: bold;
+  text-align: center;
 }
 
-.probabilities {
+.match-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #1d2b4d;
+}
+
+.match-meta-item {
+  font-size: 14px;
+  color: #b5c0d9;
+  white-space: nowrap;
+}
+
+.prediction-probabilities {
   display: flex;
   justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 12px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
@@ -159,28 +183,38 @@ url("/hero.jpeg");
   flex: 1;
   min-width: 100px;
   background: #18233f;
-  padding: 20px;
+  padding: 14px 12px;
   border-radius: 12px;
   text-align: center;
 }
 
 .probability p {
   color: #c2c2c2;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
 }
 
 .probability h4 {
-  font-size: 28px;
+  font-size: 24px;
   color: #00ff88;
 }
 
 .extra-predictions {
-  margin-bottom: 25px;
+  margin-bottom: 12px;
 }
 
 .extra-predictions p {
   margin-bottom: 8px;
   color: #d7d7d7;
+}
+
+.advice {
+  margin-bottom: 20px;
+  color: #e6e6e6;
+}
+
+.advice strong {
+  color: #00ff88;
 }
 
 .vip-btn {
@@ -215,8 +249,13 @@ url("/hero.jpeg");
     gap: 20px;
   }
 
-  .probabilities {
+  .prediction-probabilities {
     flex-direction: column;
+  }
+
+  .match-meta {
+    flex-direction: column;
+    gap: 6px;
   }
 }
 
