@@ -48,6 +48,17 @@ export default function PredictionCard({
 }) {
   return (
     <div className="prediction-card">
+      {(league || matchDate) && (
+        <div className="match-meta">
+          {league && <h3 className="match-league">🏆 {league}</h3>}
+          {matchDate && (
+            <p className="match-datetime">
+              {formatMatchDate(matchDate)} • {formatMatchTime(matchDate)}
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="teams">
         <div className="team">
           <img src={homeLogo} alt={homeTeam} />
@@ -61,22 +72,6 @@ export default function PredictionCard({
           <span>{awayTeam}</span>
         </div>
       </div>
-
-      {(league || matchDate) && (
-        <div className="match-meta">
-          {league && <span className="match-meta-item">🏆 {league}</span>}
-          {matchDate && (
-            <span className="match-meta-item">
-              📅 {formatMatchDate(matchDate)}
-            </span>
-          )}
-          {matchDate && (
-            <span className="match-meta-item">
-              🕒 {formatMatchTime(matchDate)}
-            </span>
-          )}
-        </div>
-      )}
 
       {predictedScore != null && (
         <div className="extra-predictions">
