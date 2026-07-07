@@ -7,19 +7,14 @@ export default async function Home() {
   const [allMatches, { predictions: storedPredictions, firestoreAvailable }] =
     await Promise.all([getFixtures(), getAllPredictions()]);
 
-  const now = new Date();
-  const upcomingMatches = allMatches.filter(
-    (m: any) => new Date(m.fixture.date) > now
-  );
-
-  // When Firestore is reachable, only show fixtures that have a curated prediction.
-  // When it's unavailable/slow, fall back to showing all upcoming fixtures with
-  // default placeholder text so the homepage never goes blank or crashes.
+  // getFixtures() already scopes results to the next 2 days and excludes
+  // finished matches. When Firestore is reachable, only show fixtures that
+  // have a curated prediction. When it's unavailable/slow, fall back to
+  // showing all upcoming fixtures with default placeholder text so the
+  // homepage never goes blank or crashes.
   const matches = firestoreAvailable
-    ? upcomingMatches.filter((m: any) =>
-        storedPredictions.has(String(m.fixture.id))
-      )
-    : upcomingMatches;
+    ? allMatches.filter((m: any) => storedPredictions.has(String(m.fixture.id)))
+    : allMatches;
 
   return (
     <main className="main">

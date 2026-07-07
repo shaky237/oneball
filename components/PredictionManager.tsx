@@ -74,18 +74,13 @@ export default function PredictionManager() {
         }
 
         const allFixtures: Fixture[] = await fixturesRes.json();
-        const storedPredictions: Record<string, PredictionFields> =
-          await predictionsRes.json();
+        const storedPredictions: Record<string, PredictionFields> = predictionsRes.ok
+          ? await predictionsRes.json()
+          : {};
 
-        // Show only fixtures from today onwards
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-
-        const upcoming = allFixtures.filter(
-          (f) => new Date(f.fixture.date) >= todayStart
-        );
-
-        setFixtures(upcoming);
+        // /api/fixtures already scopes results to the next 2 days and
+        // excludes finished matches, so no additional filtering is needed here.
+        setFixtures(allFixtures);
         setPredictions(storedPredictions);
       } catch (err: unknown) {
         setLoadError(
