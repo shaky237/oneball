@@ -1,43 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { getVipContentItem } from "@/lib/firestoreVipContent";
 
 export default function VIPGamesPage() {
   const router = useRouter();
-  const [games, setGames] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
- 
- 
-useEffect(() => {
-  const vipAccess = localStorage.getItem("vipAccess");
+  useEffect(() => {
+    const vipAccess = localStorage.getItem("vipAccess");
 
-  if (vipAccess !== "true") {
-    router.push("/vip/access");
-  }
-
-  const fetchGames = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "vipGames"));
-
-      let allGames = "";
-
-      querySnapshot.forEach((doc) => {
-        allGames += doc.data().games + "\n\n";
-      });
-
-      setGames(allGames || "No prediction available yet — check back soon.");
-    } catch (error) {
-      console.error(error);
-      setGames("No prediction available right now. Please try again shortly.");
+    if (vipAccess !== "true") {
+      router.push("/vip/access");
     }
-  };
-  fetchGames();
-}, [router]);
+
+    const fetchContent = async () => {
+      const item = await getVipContentItem("premiumGames");
+      setImageUrl(item?.imageUrl ?? null);
+      setLoading(false);
+    };
+    fetchContent();
+  }, [router]);
 
   return (
     <div
@@ -61,18 +46,23 @@ useEffect(() => {
 
         <h2>Today's VIP Predictions</h2>
 
-<pre
-  style={{
-    whiteSpace: "pre-wrap",
-    lineHeight: "1.8",
-    fontSize: "16px",
-    marginTop: "20px",
-  }}
->
-  {games}
-</pre>
-
-
+        {loading ? (
+          <p style={{ marginTop: "20px" }}>Loading...</p>
+        ) : imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Premium Games VIP predictions"
+            style={{
+              maxWidth: "100%",
+              width: "100%",
+              borderRadius: "10px",
+              marginTop: "20px",
+              display: "block",
+            }}
+          />
+        ) : (
+          <p style={{ marginTop: "20px" }}>No VIP image uploaded yet.</p>
+        )}
       </div>
     </div>
   );

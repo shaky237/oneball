@@ -1,30 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { getVipContentItem } from "@/lib/firestoreVipContent";
 
 export default function CorrectScoreVIP() {
-  const [games, setGames] = useState("Loading predictions...");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadGames() {
-      try {
-        const docRef = doc(db, "correctScoreGames", "today");
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setGames(docSnap.data().games);
-        } else {
-          setGames("No predictions available.");
-        }
-      } catch (error) {
-        console.error(error);
-        setGames("Failed to load predictions.");
-      }
+    async function loadContent() {
+      const item = await getVipContentItem("correctScore");
+      setImageUrl(item?.imageUrl ?? null);
+      setLoading(false);
     }
 
-    loadGames();
+    loadContent();
   }, []);
 
   return (
@@ -32,16 +22,23 @@ export default function CorrectScoreVIP() {
       <div className="vip-card">
         <h1 className="logo">VIP Correct Score</h1>
 
-        <pre
-          style={{
-            whiteSpace: "pre-wrap",
-            color: "white",
-            fontSize: "16px",
-            lineHeight: "1.8",
-          }}
-        >
-          {games}
-        </pre>
+        {loading ? (
+          <p style={{ color: "white" }}>Loading predictions...</p>
+        ) : imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="VIP Correct Score predictions"
+            style={{
+              maxWidth: "100%",
+              width: "100%",
+              borderRadius: "10px",
+              marginTop: "20px",
+              display: "block",
+            }}
+          />
+        ) : (
+          <p style={{ color: "white" }}>No VIP image uploaded yet.</p>
+        )}
       </div>
     </main>
   );
