@@ -1,4 +1,28 @@
+import { FINISHED_STATUSES } from "./liveStatus";
+
 const API_KEY = process.env.API_FOOTBALL_KEY;
+const API_BASE = "https://v3.football.api-sports.io";
+
+// Shared fetch helper for the Match Info endpoints below. Unlike the
+// no-store fetches used by getFixtures() etc., these use Next's Data Cache
+// (`next: { revalidate }`) so concurrent users share one upstream request
+// per URL within the revalidate window instead of each hitting api-sports.io
+// directly — the rate limit on this API key is limited. Never throws: on
+// any failure it returns null so callers can hide that section gracefully
+// instead of surfacing an error to the user.
+async function apiFootballGet(path: string, revalidateSeconds = 30) {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { "x-apisports-key": API_KEY || "" },
+      next: { revalidate: revalidateSeconds },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error(`api-football request failed for ${path}:`, error);
+    return null;
+  }
+}
 
 // Club leagues shown in the "Browse by League" section
 const CLUB_LEAGUE_IDS = new Set([
@@ -20,9 +44,6 @@ const WAT_UTC_OFFSET = "+01:00";
 
 // How many days ahead of today to include (0 = today only, 2 = today + next 2 days)
 const WINDOW_DAYS = 2;
-
-// Fixture statuses that mean the match has already been played
-const FINISHED_STATUSES = new Set(["FT", "AET", "PEN", "AWD", "WO"]);
 
 // Returns "YYYY-MM-DD" for `offsetDays` from today, in WAT
 function getWATDateString(offsetDays: number): string {
@@ -202,4 +223,52 @@ export async function getTeamStatistics(
   );
 
   return response.json();
+}
+
+// --- Match Info endpoints (fetched only when a user opens the Match Info modal) ---
+
+// Single-fixture lookup, used for the lightweight live-score poll.
+export async function getFixtureStatus(fixtureId: number | string) {
+  const data = await apiFootballGet(`/fixtures?id=${fixtureId}`, 15);
+  return data?.response?.[0] || null;
+}
+
+export async function getFixtureEvents(fixtureId: number | string) {
+  const data = await apiFootballGet(`/fixtures/events?fixture=${fixtureId}`, 15);
+  return data?.response || null;
+}
+
+export async function getFixtureLineups(fixtureId: number | string) {
+  const data = await apiFootballGet(`/fixtures/lineups?fixture=${fixtureId}`, 60);
+  return data?.response?.length ? data.response : null;
+}
+
+// Per-match shots/possession/corners/cards/pass accuracy. Empty until the
+// fixture has kicked off — that's real API-Football behavior, not a bug.
+export async function getFixtureStatistics(fixtureId: number | string) {
+  const data = await apiFootballGet(`/fixtures/statistics?fixture=${fixtureId}`, 15);
+  return data?.response?.length ? data.response : null;
+}
+
+export async function getHeadToHead(
+  homeTeamId: number | string,
+  awayTeamId: number | string,
+  last = 5
+) {
+  const data = await apiFootballGet(
+    `/fixtures/headtohead?h2h=${homeTeamId}-${awayTeamId}&last=${last}`,
+    300
+  );
+  return data?.response || null;
+}
+
+export async function getTeamRecentFixtures(teamId: number | string, last = 5) {
+  const data = await apiFootballGet(`/fixtures?team=${teamId}&last=${last}`, 300);
+  return data?.response || null;
+}
+
+// Name/age/number/position/photo — this endpoint has no nationality field.
+export async function getTeamSquad(teamId: number | string) {
+  const data = await apiFootballGet(`/players/squads?team=${teamId}`, 300);
+  return data?.response?.[0] || null;
 }

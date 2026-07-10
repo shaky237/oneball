@@ -63,12 +63,23 @@ export default async function Home() {
           return (
             <PredictionCard
               key={match.fixture.id}
+              fixtureId={match.fixture.id}
               homeTeam={match.teams.home.name}
               awayTeam={match.teams.away.name}
               homeLogo={match.teams.home.logo}
               awayLogo={match.teams.away.logo}
+              homeTeamId={match.teams.home.id}
+              awayTeamId={match.teams.away.id}
+              leagueId={match.league?.id || null}
+              season={match.league?.season || null}
               league={match.league?.name || null}
               matchDate={match.fixture?.date || null}
+              venue={match.fixture?.venue?.name || null}
+              referee={match.fixture?.referee || null}
+              status={match.fixture?.status?.short || null}
+              elapsed={match.fixture?.status?.elapsed || null}
+              goalsHome={match.goals?.home ?? null}
+              goalsAway={match.goals?.away ?? null}
               homePercent={prediction?.homePercent || null}
               drawPercent={prediction?.drawPercent || null}
               awayPercent={prediction?.awayPercent || null}
