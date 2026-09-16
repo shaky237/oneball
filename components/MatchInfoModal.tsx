@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatMatchDate, formatMatchTime } from "../lib/matchTime";
 import { getStatusLabel, isFinishedStatus, isLiveStatus } from "../lib/liveStatus";
 
 type Section = "overview" | "form" | "h2h" | "stats" | "players" | "lineups" | "live";
 type SectionState = { status: "idle" | "loading" | "done"; data: any };
-
-const LIVE_POLL_MS = 18000;
 
 const TABS: { id: Section; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -61,14 +59,16 @@ export default function MatchInfoModal({
 }) {
   const [activeTab, setActiveTab] = useState<Section>("overview");
   const [sections, setSections] = useState<Record<string, SectionState>>({});
-  const [live, setLive] = useState({
+  // Status/score are whatever the admin entered for this fixture — there is
+  // no live data source to poll, so this stays fixed for the modal's lifetime.
+  const live = {
     status: initialStatus ?? null,
     elapsed: initialElapsed ?? null,
     goalsHome: initialGoalsHome ?? null,
     goalsAway: initialGoalsAway ?? null,
     events: null as any[] | null,
     statistics: null as any[] | null,
-  });
+  };
 
   const query = new URLSearchParams({
     ...(homeTeamId ? { homeTeamId: String(homeTeamId) } : {}),
@@ -100,54 +100,6 @@ export default function MatchInfoModal({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, activeTab]);
-
-  // Refresh live status once on open, then keep polling only while the
-  // match is actually in progress. Stops immediately when the modal closes.
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const controller = new AbortController();
-    let interval: ReturnType<typeof setInterval> | undefined;
-
-    async function pollLive() {
-      try {
-        const res = await fetch(`/api/match-info/${fixtureId}?section=live`, {
-          signal: controller.signal,
-        });
-        const { data } = await res.json();
-        if (cancelled || !data) return;
-
-        const f = data.status;
-        const nextStatus = f?.fixture?.status?.short ?? null;
-        setLive({
-          status: nextStatus,
-          elapsed: f?.fixture?.status?.elapsed ?? null,
-          goalsHome: f?.goals?.home ?? null,
-          goalsAway: f?.goals?.away ?? null,
-          events: data.events ?? null,
-          statistics: data.statistics ?? null,
-        });
-
-        if (isLiveStatus(nextStatus) && !interval) {
-          interval = setInterval(pollLive, LIVE_POLL_MS);
-        }
-        if (isFinishedStatus(nextStatus) && interval) {
-          clearInterval(interval);
-          interval = undefined;
-        }
-      } catch {
-        // ignore, next poll retries
-      }
-    }
-
-    pollLive();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      if (interval) clearInterval(interval);
-    };
-  }, [open, fixtureId]);
 
   const statusLabel = getStatusLabel(live.status, live.elapsed);
   const liveTabVisible = isLiveStatus(live.status);

@@ -67,12 +67,10 @@ export default function PredictionCard({
 
       {fixtureId != null ? (
         <LiveScore
-          fixtureId={fixtureId}
           homeTeam={homeTeam}
           awayTeam={awayTeam}
           homeLogo={homeLogo}
           awayLogo={awayLogo}
-          matchDate={matchDate}
           status={status}
           elapsed={elapsed}
           goalsHome={goalsHome}

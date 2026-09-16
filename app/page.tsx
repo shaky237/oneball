@@ -1,20 +1,29 @@
 import Link from "next/link";
-import { getFixtures } from "../lib/football";
-import { getAllPredictions } from "../lib/firestoreFixtures";
+import {
+  getAllFixtures,
+  getAllPredictions,
+  type StoredFixture,
+} from "../lib/firestoreFixtures";
 import PredictionCard from "../components/PredictionCard";
 
-export default async function Home() {
-  const [allMatches, { predictions: storedPredictions, firestoreAvailable }] =
-    await Promise.all([getFixtures(), getAllPredictions()]);
+// Fixtures are entered by hand in the admin dashboard — there is no external
+// source to scope or filter against. Just hide ones whose kickoff has
+// clearly passed so the admin doesn't have to delete every fixture the
+// moment a match ends.
+const MATCH_DURATION_GRACE_MS = 3 * 60 * 60 * 1000;
 
-  // getFixtures() already scopes results to the next 2 days and excludes
-  // finished matches. When Firestore is reachable, only show fixtures that
-  // have a curated prediction. When it's unavailable/slow, fall back to
-  // showing all upcoming fixtures with default placeholder text so the
-  // homepage never goes blank or crashes.
-  const matches = firestoreAvailable
-    ? allMatches.filter((m: any) => storedPredictions.has(String(m.fixture.id)))
-    : allMatches;
+function filterRelevantFixtures(fixtures: StoredFixture[]): StoredFixture[] {
+  const nowMs = Date.now();
+  return fixtures.filter(
+    (m) => new Date(m.fixture.date).getTime() + MATCH_DURATION_GRACE_MS > nowMs
+  );
+}
+
+export default async function Home() {
+  const [{ fixtures: allMatches }, { predictions: storedPredictions }] =
+    await Promise.all([getAllFixtures(), getAllPredictions()]);
+
+  const matches = filterRelevantFixtures(allMatches);
 
   return (
     <main className="main">

@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { getStatusLabel, isFinishedStatus, isLiveStatus } from "../lib/liveStatus";
-
-const POLL_MS = 20000;
-const POLL_LEAD_MS = 5 * 60 * 1000; // start polling once we're within 5 min of kickoff
+import { getStatusLabel, isFinishedStatus } from "../lib/liveStatus";
 
 type FixtureStatus = {
   status?: string | null;
@@ -14,87 +10,32 @@ type FixtureStatus = {
 };
 
 export default function LiveScore({
-  fixtureId,
   homeTeam,
   awayTeam,
   homeLogo,
   awayLogo,
-  matchDate,
   status: initialStatus,
   elapsed: initialElapsed,
   goalsHome: initialGoalsHome,
   goalsAway: initialGoalsAway,
 }: {
-  fixtureId: number | string;
   homeTeam: string;
   awayTeam: string;
   homeLogo: string;
   awayLogo: string;
-  matchDate?: string | null;
   status?: string | null;
   elapsed?: number | null;
   goalsHome?: number | null;
   goalsAway?: number | null;
 }) {
-  const [live, setLive] = useState<FixtureStatus>({
+  // Score/status are whatever the admin entered for this fixture — there is
+  // no live data source to poll, so this is static for the page's lifetime.
+  const live: FixtureStatus = {
     status: initialStatus,
     elapsed: initialElapsed,
     goalsHome: initialGoalsHome,
     goalsAway: initialGoalsAway,
-  });
-  const finished = useRef(isFinishedStatus(initialStatus));
-
-  useEffect(() => {
-    if (finished.current) return;
-
-    const kickoff = matchDate ? new Date(matchDate).getTime() : null;
-    const nearOrLive =
-      isLiveStatus(initialStatus) ||
-      (kickoff != null && kickoff - Date.now() <= POLL_LEAD_MS);
-
-    // Most fixtures are NS well ahead of kickoff — skip polling entirely so
-    // the homepage doesn't fire background requests for matches nobody is
-    // watching yet.
-    if (!nearOrLive) return;
-
-    let cancelled = false;
-    const controller = new AbortController();
-
-    async function poll() {
-      try {
-        const res = await fetch(
-          `/api/match-info/${fixtureId}?section=status`,
-          { signal: controller.signal }
-        );
-        const { data } = await res.json();
-        if (cancelled || !data) return;
-
-        const nextStatus = data.fixture?.status?.short ?? null;
-        setLive({
-          status: nextStatus,
-          elapsed: data.fixture?.status?.elapsed ?? null,
-          goalsHome: data.goals?.home ?? null,
-          goalsAway: data.goals?.away ?? null,
-        });
-
-        if (isFinishedStatus(nextStatus)) {
-          finished.current = true;
-          clearInterval(interval);
-        }
-      } catch {
-        // Ignore transient errors — next poll will retry.
-      }
-    }
-
-    poll();
-    const interval = setInterval(poll, POLL_MS);
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      clearInterval(interval);
-    };
-  }, [fixtureId, matchDate, initialStatus]);
+  };
 
   const label = getStatusLabel(live.status, live.elapsed);
   const showScoreboard = label != null;

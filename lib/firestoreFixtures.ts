@@ -18,6 +18,30 @@ export type PredictionsResult = {
   firestoreAvailable: boolean;
 };
 
+// Fixtures are entered by hand in the admin dashboard — there is no external
+// data source. Shaped to match what PredictionCard/PredictionManager expect.
+export type StoredFixture = {
+  fixture: {
+    id: string;
+    date: string;
+    venue: string | null;
+    referee: string | null;
+    status: string | null;
+    elapsed: number | null;
+  };
+  teams: {
+    home: { name: string; logo: string; id: number | null };
+    away: { name: string; logo: string; id: number | null };
+  };
+  league: { id: number | null; name: string | null; season: number | null };
+  goals: { home: number | null; away: number | null };
+};
+
+export type FixturesResult = {
+  fixtures: StoredFixture[];
+  firestoreAvailable: boolean;
+};
+
 const FIRESTORE_TIMEOUT_MS = 8000;
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -46,5 +70,46 @@ export async function getAllPredictions(): Promise<PredictionsResult> {
   } catch (error) {
     console.error("Firestore unavailable, falling back to empty predictions:", error);
     return { predictions: new Map(), firestoreAvailable: false };
+  }
+}
+
+export async function getAllFixtures(): Promise<FixturesResult> {
+  try {
+    const liteDb = getFirestore(app);
+    const snapshot = await withTimeout(
+      getDocs(collection(liteDb, "fixtures")),
+      FIRESTORE_TIMEOUT_MS
+    );
+    const fixtures: StoredFixture[] = [];
+    snapshot.forEach((docSnap) => {
+      const d = docSnap.data() as any;
+      fixtures.push({
+        fixture: {
+          id: docSnap.id,
+          date: d.matchDate,
+          venue: d.venue || null,
+          referee: d.referee || null,
+          status: d.status || null,
+          elapsed: d.elapsed ?? null,
+        },
+        teams: {
+          home: { name: d.homeTeam, logo: d.homeLogo || "", id: d.homeTeamId ?? null },
+          away: { name: d.awayTeam, logo: d.awayLogo || "", id: d.awayTeamId ?? null },
+        },
+        league: {
+          id: d.leagueId ?? null,
+          name: d.league || null,
+          season: d.season ?? null,
+        },
+        goals: { home: d.goalsHome ?? null, away: d.goalsAway ?? null },
+      });
+    });
+    fixtures.sort(
+      (a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+    );
+    return { fixtures, firestoreAvailable: true };
+  } catch (error) {
+    console.error("Firestore unavailable, falling back to empty fixtures:", error);
+    return { fixtures: [], firestoreAvailable: false };
   }
 }
